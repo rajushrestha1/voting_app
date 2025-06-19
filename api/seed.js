@@ -16,6 +16,7 @@ const seedDB = async () => {
         // Seed new students
         const students = [
             {studentId:"123", name:"hey"},
+            {studentId:"124", name:"hello"},
         ];
         await Student.insertMany(students);
         console.log('Students seeded successfully');
