@@ -1,42 +1,75 @@
 const express = require('express');
-const router = express.Router();
 const jwt = require('jsonwebtoken');
 const Student = require('../models/Student');
 
+const router = express.Router();
+
 router.post('/login', async (req, res) => {
-    const {studentId} = req.body;
-    if(!studentId){
-        return res.status(400).json({message:'student is is required'})
-    }
-    try {
-        const student = await Student.findOne({studentId})
-        if(!student){
-            return res.status(401).json({message:'invalid student id'})
-        }
-        const token=jwt.sign({
-            studentId: student.studentId,
-        }, process.env.JWT_SeCRET, {expiresIn:'1h'});
+  let { studentId } = req.body;
+  
+  console.log('[AUTH] Student login attempt');
+  console.log(`[AUTH] Received studentId: ${studentId}`);
+  
+  if (!studentId) {
+    console.log('[AUTH] Missing studentId');
+    return res.status(400).json({ message: 'Student ID is required' });
+  }
 
-        res.cookie('token', token,{
-            httpOnly: true,
-            secure: process.env.NODE_ENV ==='production',
-            sameSite: 'strict',
-            maxAge: 3600000,//1hour
-        });
-        res.json({
-            message: 'Login successful',
-            studentId: student.studentId,
-            name: student.name,
-        });
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({message: 'Internal server error'});
-    }
-})
+  // Normalize studentId - Remove spaces and convert to uppercase
+  studentId = studentId.toString().replace(/\s+/g, '').toUpperCase();
+  console.log(`[AUTH] Normalized studentId: ${studentId}`);
 
-router.post('/logout', (req, res)=>{
-    res.clearCookie('token');
-    res.json({message: 'Logout successful'});
-})
+  try {
+    console.log(`[AUTH] Searching for student: ${studentId}`);
+    
+    // Use findOne with exact match
+    const student = await Student.findOne({ studentId });
+    
+    if (!student) {
+      console.log(`[AUTH] Student not found: ${studentId}`);
+      
+      // Debugging: List all student IDs in the database
+      const allStudents = await Student.find({}, 'studentId');
+      console.log('[AUTH] All student IDs in DB:', allStudents.map(s => s.studentId));
+      
+      return res.status(401).json({ message: 'Invalid Student ID' });
+    }
+
+    console.log(`[AUTH] Student found: ${student.name}`);
+    
+    // JWT creation
+    const payload = { 
+      studentId: student.studentId,
+      name: student.name
+    };
+    
+    console.log('[AUTH] Creating JWT with payload:', payload);
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    console.log('[AUTH] Setting cookie...');
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 3600000,
+    });
+
+    console.log('[AUTH] Login successful');
+    res.json({ 
+      message: 'Login successful',
+      name: student.name,
+      studentId: student.studentId
+    });
+  } catch (err) {
+    console.error('[AUTH] Server error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.post('/logout', (req, res) => {
+  console.log('[AUTH] Logout request');
+  res.clearCookie('token');
+  res.json({ message: 'Logged out successfully' });
+});
 
 module.exports = router;

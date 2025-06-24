@@ -1,6 +1,7 @@
 const express=require('express');
 const router=express.Router();
 const Candidate=require('../models/Candidate');
+const authMiddleware = require('../middleware/authMiddleware')
 
 router.get("/", async (req, res) => {
     try {
