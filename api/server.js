@@ -7,6 +7,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const voteRoutes = require('./routes/voteRoutes');
+const publicRoutes = require('./routes/publicRoutes');
 
 const app = express();
 
@@ -15,7 +16,7 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000', // Update with your frontend URL
+  origin: 'http://localhost:5173', // Update with your frontend URL
   credentials: true
 }));
 app.use(express.json());
@@ -25,6 +26,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/vote', voteRoutes);
+app.use('/api/public', publicRoutes);
 
 // Error handling
 app.use((err, req, res, next) => {
