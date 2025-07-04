@@ -1,30 +1,37 @@
 import React from 'react';
 
 const CandidateCard = ({ candidate, onVoteClick, hasVoted }) => {
+  // Debug candidate object
+  console.log("CandidateCard received:", candidate);
+  
   return (
-    <div className="card">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 transition-all hover:shadow-lg">
       <div className="p-6">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-xl font-bold">{candidate.name}</h3>
-            <p className="text-gray-600">{candidate.party}</p>
+            <h3 className="text-xl font-bold text-gray-800">
+              {candidate.name || "Unknown Candidate"}
+            </h3>
+            <p className="text-gray-600 mt-2">
+              {candidate.party || "No party specified"}
+            </p>
           </div>
           <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
-            {candidate.votes} votes
+            {typeof candidate.votes === 'number' ? candidate.votes : 0} votes
           </span>
         </div>
         
         <div className="mt-6">
           <button
-            onClick={() => onVoteClick(candidate)}
+            onClick={onVoteClick}
             disabled={hasVoted}
-            className={`w-full py-2 px-4 rounded font-medium ${
+            className={`w-full py-2 px-4 rounded font-medium transition ${
               hasVoted 
-                ? 'bg-gray-300 cursor-not-allowed' 
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
                 : 'bg-blue-600 hover:bg-blue-700 text-white'
             }`}
           >
-            {hasVoted ? 'Voted' : 'Vote Now'}
+            {hasVoted ? 'Already Voted' : 'Vote Now'}
           </button>
         </div>
       </div>

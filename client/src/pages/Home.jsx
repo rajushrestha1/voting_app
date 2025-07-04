@@ -1,12 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
+import About from '../pages/About';
 const Home = () => {
   return (
+    <>
+    
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center">
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-6">
-          Campus Voting System
+          Student Voting System
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-12">
           A secure and transparent platform for student elections. Cast your vote anytime, anywhere.
@@ -27,8 +29,12 @@ const Home = () => {
           </Link>
         </div>
       </div>
+      
     </div>
+    <About />
+    </>
   );
 };
+   
 
 export default Home;

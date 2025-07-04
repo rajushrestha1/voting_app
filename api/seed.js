@@ -27,24 +27,28 @@ const seedDB = async () => {
       console.log('[SEED] All collections reset');
     }
 
-    // Seed Students - Using uppercase IDs for consistency
+    // Students
     const students = [
-      { studentId: '100', name: 'John Smith' },
-      { studentId: 'S1002', name: 'Emily Johnson' },
-      { studentId: 'S1003', name: 'Michael Williams' },
-      { studentId: 'S1004', name: 'Sarah Brown' },
-      { studentId: 'S1005', name: 'David Davis' },
+      { studentId: '1', name: 'Raju Shrestha' },
+      { studentId: '2', name: 'Saroj Shrestha' },
+      { studentId: '3', name: 'Aayush Aryal' },
+      { studentId: '4', name: 'Neupane' },
+      { studentId: '5', name: 'Dahal' },
     ];
-    
-    const studentResults = await Student.insertMany(students);
-    console.log(`[SEED] Created ${studentResults.length} students`);
-    console.log('[SEED] Student IDs:', students.map(s => s.studentId));
 
-    // Verify student insertion
-    const insertedStudents = await Student.find();
-    console.log('[SEED] Actual students in DB:', insertedStudents);
+    for (const student of students) {
+      await Student.updateOne(
+        { studentId: student.studentId },
+        { $set: student },
+        { upsert: true }
+      );
+    }
 
-    // Seed Admin 
+    const updatedStudents = await Student.find();
+    console.log(`[SEED] Seeded/Updated ${updatedStudents.length} students`);
+    console.log('[SEED] Students:', updatedStudents.map(s => `${s.studentId} - ${s.name}`));
+
+    // Admin
     const adminusername = 'admin';
     const adminPassword = 'admin123';
     const existingAdmin = await Admin.findOne({ username: adminusername });
@@ -53,28 +57,41 @@ const seedDB = async () => {
       console.log('[SEED] Creating admin account...');
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(adminPassword, salt);
-      
+
       const admin = new Admin({
         username: adminusername,
         password: hashedPassword
       });
-      
+
       await admin.save();
       console.log(`[SEED] Admin created - username: ${adminusername}, password: ${adminPassword}`);
     } else {
       console.log('[SEED] Admin already exists');
     }
 
-    // Seed Candidates
+    // Candidates
     const candidates = [
-      { name: 'Alice Johnson', party: 'Education First' },
-      { name: 'Bob Smith', party: 'Tech Progress' },
-      { name: 'Carol Williams', party: 'Green Future' },
+      { name: 'Raju Dada', party: 'Education First' },
+      { name: 'Saroj Dada', party: 'Tech Progress' },
+      { name: 'Aayush Dada', party: 'Green Future' },
     ];
-    
-    const candidateResults = await Candidate.insertMany(candidates);
-    console.log(`[SEED] Created ${candidateResults.length} candidates`);
-    console.log('[SEED] Candidates:', candidates);
+
+    if (resetFlag) {
+      await Candidate.insertMany(candidates);
+      console.log(`[SEED] Created ${candidates.length} candidates`);
+    } else {
+      for (const candidate of candidates) {
+        await Candidate.updateOne(
+          { name: candidate.name },
+          { $set: candidate },
+          { upsert: true }
+        );
+      }
+      console.log('[SEED] Candidates inserted/updated');
+    }
+
+    const currentCandidates = await Candidate.find();
+    console.log('[SEED] Candidates:', currentCandidates.map(c => `${c.name} (${c.party})`));
 
     console.log('[SEED] Database seeding complete!');
     process.exit(0);
@@ -85,3 +102,4 @@ const seedDB = async () => {
 };
 
 seedDB();
+//node seed.js --reset

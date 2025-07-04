@@ -6,20 +6,17 @@ const API = axios.create({
 });
 
 // Student endpoints
-export const studentLogin = (studentId) => API.post('/api/auth/login', { studentId });
-export const studentLogout = () => API.post('/api/auth/logout');
-export const castVote = (candidateId) => API.post('/api/vote', { candidateId });
+export const studentLogin = (studentId) => API.post('/auth/login', { studentId });
+export const studentLogout = () => API.post('/auth/logout');
+export const castVote = (candidateId) => API.post('/vote', { candidateId }); // ✅ fixed path
 
 // Admin endpoints
-export const adminLogin = (credentials) => API.post('/api/admin/login', credentials);
-export const adminLogout = () => API.post('/api/admin/logout');
-export const addCandidate = (candidateData) => API.post('/api/admin/candidates', candidateData);
-export const removeCandidate = (id) => API.delete(`/api/admin/candidates/${id}`);
-export const getCandidates = () => API.get('/api/admin/candidates');
-export const getResults = () => API.get('/api/admin/results');
+export const adminLogin = (credentials) => API.post('/admin/login', credentials);
+export const adminLogout = () => API.post('/admin/logout');
+export const addCandidate = (candidateData) => API.post('/admin/candidates', candidateData);
+export const removeCandidate = (id) => API.delete(`/admin/candidates/${id}`);
+export const getCandidates = () => API.get('/admin/candidates');
+export const getResults = () => API.get('/admin/results');
 
-// Public endpoints - REMOVE THIS SECTION IF NOT IMPLEMENTED
-// export const getPublicCandidates = () => API.get('/public/candidates');
-
-// Use existing admin endpoint for public access
-export const getPublicCandidates = () => API.get('/admin/candidates');
+// Public endpoints
+export const getPublicCandidates = () => API.get('/public/candidates');

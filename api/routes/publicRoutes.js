@@ -1,15 +1,36 @@
-const express = require('express');
-const router = express.Router();
-const Candidate = require('../models/Candidate');
+  // routes/publicRoutes.js
+  const express = require('express');
+  const router = express.Router();
+  const Candidate = require('../models/Candidate');
 
-// GET /api/public/candidates
-router.get('/candidates', async (req, res) => {
-  try {
-    const candidates = await Candidate.find().sort({ name: 1 });
-    res.json(candidates);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+  router.get('/candidates', async (req, res) => {
+    try {
+      console.log('Fetching candidates from database...');
+      const candidates = await Candidate.find().lean();
+      
+      if (!candidates || candidates.length === 0) {
+        console.log('No candidates found in database');
+        return res.json([]);
+      }
 
-module.exports = router;
+      const transformedCandidates = candidates.map(candidate => ({
+        _id: candidate._id.toString(),
+        name: candidate.name,
+        party: candidate.party,
+        votes: candidate.votes,
+        createdAt: candidate.createdAt
+      }));
+
+      console.log(`Returning ${transformedCandidates.length} candidates`);
+      res.json(transformedCandidates);
+    } catch (err) {
+      console.error('Database error:', err);
+      res.status(500).json({ 
+        error: 'Server error',
+        message: err.message 
+      });
+    }
+  });
+
+  //  Export the router!
+  module.exports = router;

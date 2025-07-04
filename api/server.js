@@ -8,7 +8,6 @@ const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const voteRoutes = require('./routes/voteRoutes');
 const publicRoutes = require('./routes/publicRoutes');
-
 const app = express();
 
 // Connect to database
