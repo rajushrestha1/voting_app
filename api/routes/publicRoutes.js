@@ -17,6 +17,7 @@
         _id: candidate._id.toString(),
         name: candidate.name,
         party: candidate.party,
+        position: candidate.position,
         votes: candidate.votes,
         createdAt: candidate.createdAt
       }));

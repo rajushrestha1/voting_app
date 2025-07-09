@@ -9,7 +9,8 @@ import toast from 'react-hot-toast';
 const StudentDashboard = () => {
   const { student } = useAuth();
   const [candidates, setCandidates] = useState([]);
-  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [votes, setVotes] = useState({ President: null, 'Vice President': null, Candidate: [] });
+  const [step, setStep] = useState('President');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,10 +28,7 @@ const StudentDashboard = () => {
 
       try {
         const response = await getPublicCandidates();
-        console.log("API Response:", response);
-
         if (response.data && Array.isArray(response.data)) {
-          console.log("Received candidates array:", response.data);
           setCandidates(response.data);
         } else {
           throw new Error('Invalid candidates data format');
@@ -47,37 +45,54 @@ const StudentDashboard = () => {
     fetchCandidates();
   }, [student, navigate]);
 
+  const filteredCandidates = candidates.filter(c => c.position === step);
+
   const handleVoteClick = (candidate) => {
-    if (!student || student.hasVoted) {
-      toast.error('You have already voted or not logged in!');
+    if (student?.hasVoted) {
+      toast.error('You have already voted!');
       return;
     }
-    setSelectedCandidate(candidate);
-    setShowConfirmation(true);
+
+    if (step === 'Candidate') {
+      const alreadySelected = votes.Candidate.find(c => c._id === candidate._id);
+      if (alreadySelected) {
+        setVotes(prev => ({ ...prev, Candidate: prev.Candidate.filter(c => c._id !== candidate._id) }));
+      } else if (votes.Candidate.length < 5) {
+        setVotes(prev => ({ ...prev, Candidate: [...prev.Candidate, candidate] }));
+      } else {
+        toast.error('You can vote for up to 5 candidates only.');
+      }
+    } else {
+      setVotes(prev => ({ ...prev, [step]: candidate }));
+      setShowConfirmation(true);
+    }
   };
 
   const confirmVote = async () => {
-    if (!selectedCandidate || !student) return;
-
     try {
-      await castVote(selectedCandidate._id);
-
-      const updatedCandidates = candidates.map(c =>
-        c._id === selectedCandidate._id
-          ? { ...c, votes: c.votes + 1 }
-          : c
-      );
-
-      setCandidates(updatedCandidates);
-      setShowConfirmation(false);
-
-      const updatedStudent = { ...student, hasVoted: true };
-      localStorage.setItem('student', JSON.stringify(updatedStudent));
-
-      toast.success(`Vote cast for ${selectedCandidate.name}!`);
+      if (step === 'President' && votes.President) {
+        console.log('Submitting vote for President:', votes.President._id);
+        // **Send position with vote**
+        await castVote({ candidateId: votes.President._id, position: 'President' });
+        setStep('Vice President');
+        setShowConfirmation(false);
+      } else if (step === 'Vice President' && votes['Vice President']) {
+        console.log('Submitting vote for Vice President:', votes['Vice President']._id);
+        await castVote({ candidateId: votes['Vice President']._id, position: 'Vice President' });
+        setStep('Candidate');
+        setShowConfirmation(false);
+      } else if (step === 'Candidate' && votes.Candidate.length > 0) {
+        console.log('Submitting final candidate votes:', votes.Candidate.map(c => c._id));
+        for (let candidate of votes.Candidate) {
+          await castVote({ candidateId: candidate._id, position: 'Candidate' });
+        }
+        localStorage.setItem('student', JSON.stringify({ ...student, hasVoted: true }));
+        toast.success('All votes submitted successfully!');
+        navigate(0);
+      }
     } catch (error) {
-      console.error('Failed to cast vote:', error);
-      toast.error(error.message || 'Failed to cast vote');
+      console.error('Vote submission error:', error);
+      toast.error('Failed to submit vote');
     }
   };
 
@@ -95,7 +110,7 @@ const StudentDashboard = () => {
       ) : (
         <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-6">
           <p className="font-bold">Welcome, {student.name}!</p>
-          <p>Please select your preferred candidate to cast your vote.</p>
+          <p>Please vote for one {step} {step === 'Candidate' ? '(select up to 5)' : ''}</p>
         </div>
       )}
 
@@ -115,36 +130,40 @@ const StudentDashboard = () => {
             Refresh Page
           </button>
         </div>
-      ) : candidates.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-xl text-gray-600">No candidates available</p>
-          <p className="text-gray-500 mt-2">The election has no candidates yet</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Check Again
-          </button>
-        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {candidates.map(candidate => (
+          {filteredCandidates.map(candidate => (
             <CandidateCard
-              key={candidate._id || candidate.id}
+              key={candidate._id}
               candidate={candidate}
               onVoteClick={() => handleVoteClick(candidate)}
-              hasVoted={student.hasVoted}
+              hasVoted={step !== 'Candidate' && votes[step]?._id === candidate._id}
             />
           ))}
         </div>
       )}
 
-      {showConfirmation && (
+      {/* Pass step (position) prop to VoteConfirmation */}
+      {showConfirmation && step !== 'Candidate' && (
         <VoteConfirmation
-          candidate={selectedCandidate}
+          candidate={votes[step]}
+          position={step}           // <--- Added this line
           onConfirm={confirmVote}
           onCancel={() => setShowConfirmation(false)}
         />
+      )}
+
+      {step === 'Candidate' && !student.hasVoted && (
+        <div className="mt-6 text-center">
+          <p className="text-gray-700 mb-2">Selected {votes.Candidate.length} candidates</p>
+          <button
+            onClick={confirmVote}
+            disabled={votes.Candidate.length === 0}
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded disabled:opacity-50"
+          >
+            Submit Final Votes
+          </button>
+        </div>
       )}
     </div>
   );

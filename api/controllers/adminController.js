@@ -47,10 +47,10 @@ exports.adminLogout = (req, res) => {
 
 // Add new candidate
 exports.addCandidate = async (req, res) => {
-  const { name, party } = req.body;
-  
+  const { name, party , position } = req.body;
+
   try {
-    const newCandidate = new Candidate({ name, party });
+    const newCandidate = new Candidate({ name, party , position});
     await newCandidate.save();
     res.status(201).json(newCandidate);
   } catch (err) {

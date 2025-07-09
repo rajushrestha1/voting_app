@@ -1,9 +1,11 @@
+// AddCandidateForm.jsx
 import React, { useState } from 'react';
 
 const AddCandidateForm = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
-    party: ''
+    party: '',
+    position: 'President'
   });
 
   const handleChange = (e) => {
@@ -48,19 +50,30 @@ const AddCandidateForm = ({ onSubmit, onCancel }) => {
               required
             />
           </div>
+          <div>
+            <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-1">
+              Position
+            </label>
+            <select
+              id="position"
+              name="position"
+              value={formData.position}
+              onChange={handleChange}
+              className="input-field"
+              required
+            >
+              <option value="President">President</option>
+              <option value="Vice President">Vice President</option>
+              <option value="Candidate">Candidate</option>
+            </select>
+          </div>
         </div>
+
         <div className="flex space-x-3">
-          <button
-            type="submit"
-            className="btn-primary"
-          >
+          <button type="submit" className="btn-primary">
             Add Candidate
           </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="btn-secondary"
-          >
+          <button type="button" onClick={onCancel} className="btn-secondary">
             Cancel
           </button>
         </div>

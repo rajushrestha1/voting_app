@@ -1,3 +1,4 @@
+// CandidateList.jsx
 import React from 'react';
 
 const CandidateList = ({ candidates, onRemove }) => {
@@ -8,6 +9,7 @@ const CandidateList = ({ candidates, onRemove }) => {
           <tr className="bg-gray-100">
             <th className="py-3 px-4 text-left">Name</th>
             <th className="py-3 px-4 text-left">Party</th>
+            <th className="py-3 px-4 text-left">Position</th>
             <th className="py-3 px-4 text-center">Votes</th>
             <th className="py-3 px-4 text-center">Actions</th>
           </tr>
@@ -17,6 +19,7 @@ const CandidateList = ({ candidates, onRemove }) => {
             <tr key={candidate._id} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
               <td className="py-3 px-4 border-b">{candidate.name}</td>
               <td className="py-3 px-4 border-b">{candidate.party}</td>
+              <td className="py-3 px-4 border-b">{candidate.position}</td>
               <td className="py-3 px-4 border-b text-center">{candidate.votes}</td>
               <td className="py-3 px-4 border-b text-center">
                 <button

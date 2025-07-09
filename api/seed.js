@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 const Student = require('./models/Student');
 const Admin = require('./models/Admin');
 const Candidate = require('./models/Candidate');
-const Vote = require('./models/Vote');
 
 console.log('[SEED] Starting database seeding...');
 console.log(`[SEED] MONGO_URI: ${process.env.MONGO_URI}`);
@@ -23,17 +22,36 @@ const seedDB = async () => {
       await Student.deleteMany();
       await Admin.deleteMany();
       await Candidate.deleteMany();
-      await Vote.deleteMany();
       console.log('[SEED] All collections reset');
     }
 
-    // Students
+    // Students (✅ Added votedFor field)
     const students = [
-      { studentId: '1', name: 'Raju Shrestha' },
-      { studentId: '2', name: 'Saroj Shrestha' },
-      { studentId: '3', name: 'Aayush Aryal' },
-      { studentId: '4', name: 'Neupane' },
-      { studentId: '5', name: 'Dahal' },
+      { 
+        studentId: '1', 
+        name: 'Raju Shrestha',
+        votedFor: { president: null, vicePresident: null, generalCandidates: [] }
+      },
+      {
+        studentId: '2',
+        name: 'Saroj Shrestha',
+        votedFor: { president: null, vicePresident: null, generalCandidates: [] }
+      },
+      {
+        studentId: '3',
+        name: 'Aayush Aryal',
+        votedFor: { president: null, vicePresident: null, generalCandidates: [] }
+      },
+      {
+        studentId: '4',
+        name: 'Neupane',
+        votedFor: { president: null, vicePresident: null, generalCandidates: [] }
+      },
+      {
+        studentId: '5',
+        name: 'Dahal',
+        votedFor: { president: null, vicePresident: null, generalCandidates: [] }
+      },
     ];
 
     for (const student of students) {
@@ -69,12 +87,19 @@ const seedDB = async () => {
       console.log('[SEED] Admin already exists');
     }
 
-    // Candidates
-    const candidates = [
-      { name: 'Raju Dada', party: 'Education First' },
-      { name: 'Saroj Dada', party: 'Tech Progress' },
-      { name: 'Aayush Dada', party: 'Green Future' },
-    ];
+    // Candidates (✅ Added votes: 0 explicitly)
+    const parties = ['Education First', 'Tech Progress', 'Green Future', 'Unity Party'];
+
+    const candidates = [];
+
+    parties.forEach(party => {
+      candidates.push(
+        { name: `President of ${party}`, party, position: 'President', votes: 0 },
+        { name: `Vice President of ${party}`, party, position: 'Vice President', votes: 0 },
+        { name: `${party} Candidate 1`, party, position: 'Candidate', votes: 0 },
+        { name: `${party} Candidate 2`, party, position: 'Candidate', votes: 0 }
+      );
+    });
 
     if (resetFlag) {
       await Candidate.insertMany(candidates);
@@ -91,7 +116,7 @@ const seedDB = async () => {
     }
 
     const currentCandidates = await Candidate.find();
-    console.log('[SEED] Candidates:', currentCandidates.map(c => `${c.name} (${c.party})`));
+    console.log('[SEED] Candidates:', currentCandidates.map(c => `${c.name} (${c.party} - ${c.position})`));
 
     console.log('[SEED] Database seeding complete!');
     process.exit(0);
@@ -102,4 +127,3 @@ const seedDB = async () => {
 };
 
 seedDB();
-//node seed.js --reset
