@@ -73,18 +73,18 @@ const StudentDashboard = () => {
       if (step === 'President' && votes.President) {
         console.log('Submitting vote for President:', votes.President._id);
         // **Send position with vote**
-        await castVote({ candidateId: votes.President._id, position: 'President' });
+        await castVote({ candidateId: votes.President._id, position: 'president' });
         setStep('Vice President');
         setShowConfirmation(false);
       } else if (step === 'Vice President' && votes['Vice President']) {
         console.log('Submitting vote for Vice President:', votes['Vice President']._id);
-        await castVote({ candidateId: votes['Vice President']._id, position: 'Vice President' });
+        await castVote({ candidateId: votes['Vice President']._id, position: 'VicePresident' });
         setStep('Candidate');
         setShowConfirmation(false);
       } else if (step === 'Candidate' && votes.Candidate.length > 0) {
         console.log('Submitting final candidate votes:', votes.Candidate.map(c => c._id));
         for (let candidate of votes.Candidate) {
-          await castVote({ candidateId: candidate._id, position: 'Candidate' });
+          await castVote({ candidateId: candidate._id, position: 'Candidates' });
         }
         localStorage.setItem('student', JSON.stringify({ ...student, hasVoted: true }));
         toast.success('All votes submitted successfully!');

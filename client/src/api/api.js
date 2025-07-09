@@ -8,7 +8,7 @@ const API = axios.create({
 // Student endpoints
 export const studentLogin = (studentId) => API.post('/auth/login', { studentId });
 export const studentLogout = () => API.post('/auth/logout');
-export const castVote = (candidateId, position) => API.post('/vote', { candidateId, position });
+export const castVote = (voteData) => API.post('/vote', voteData);  // Fixed: Accept object instead of separate params
 
 // Admin endpoints
 export const adminLogin = (credentials) => API.post('/admin/login', credentials);
