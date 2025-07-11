@@ -25,7 +25,7 @@ const seedDB = async () => {
       console.log('[SEED] All collections reset');
     }
 
-    // Students (✅ Added votedFor field)
+    // Students (Added votedFor field)
     const students = [
       { 
         studentId: '1', 
