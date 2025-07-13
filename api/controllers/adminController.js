@@ -47,9 +47,13 @@ exports.adminLogout = (req, res) => {
 
 // Add new candidate
 exports.addCandidate = async (req, res) => {
-  const { name, party , position } = req.body;
+  const { name, party , position, } = req.body;
+  const file = req.file;
 
   try {
+if (!file) return res.status(400).json({ message: 'Image file is required' });
+    const url = `/uploads/${file.filename}`; // Adjust
+
     const newCandidate = new Candidate({ name, party , position});
     await newCandidate.save();
     res.status(201).json(newCandidate);
