@@ -41,23 +41,33 @@ exports.adminLogin = async (req, res) => {
 
 // Admin logout
 exports.adminLogout = (req, res) => {
-  res.clearCookie('adminToken');
+  res.clearCookie('adminToken');y
   res.json({ message: 'Admin logged out successfully' });
 };
 
+
 // Add new candidate
 exports.addCandidate = async (req, res) => {
-  const { name, party , position, } = req.body;
+  const { name, party, position } = req.body;
   const file = req.file;
 
   try {
-if (!file) return res.status(400).json({ message: 'Image file is required' });
-    const url = `/uploads/${file.filename}`; // Adjust
+    if (!file) return res.status(400).json({ message: 'Image file is required' });
 
-    const newCandidate = new Candidate({ name, party , position});
+    const image = `/uploads/${file.filename}`; // Public path to the uploaded image
+
+    const newCandidate = new Candidate({
+      name,
+      party,
+      position,
+      image // This saves the image path into DB
+    });
+
     await newCandidate.save();
-    res.status(201).json(newCandidate);
+
+    res.status(201).json({ message: 'Candidate created successfully', candidate: newCandidate });
   } catch (err) {
+    console.error('[AddCandidate Error]', err);
     res.status(500).json({ message: 'Server error' });
   }
 };

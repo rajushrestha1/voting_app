@@ -5,7 +5,6 @@ import AddCandidateForm from '../candidate/AddCandidateForm';
 import CandidateList from '../candidate/CandidateList';
 import ResultsChart from '../common/ResultsChart';
 import toast from 'react-hot-toast';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 const AdminDashboard = () => {
   const { admin } = useAuth();
@@ -98,7 +97,6 @@ console.error('Login error:', error);
           <CandidateList 
             candidates={candidates} 
             onRemove={handleRemoveCandidate} 
-           DeleteIcon={<DeleteIcon className="text-red-600 hover:text-red-800" />}
           />
         </div>
       ) : (

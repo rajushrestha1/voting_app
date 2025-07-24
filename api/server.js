@@ -9,6 +9,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const voteRoutes = require('./routes/voteRoutes');
 const publicRoutes = require('./routes/publicRoutes');
 const app = express();
+// const upload = multer({ dest: './public/data/uploads/' })
+
 
 // Connect to database
 connectDB();

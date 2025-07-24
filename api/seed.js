@@ -52,6 +52,11 @@ const seedDB = async () => {
         name: 'Dahal',
         votedFor: { president: null, vicePresident: null, generalCandidates: [] }
       },
+      {
+        studentId: '6',
+        name: 'Sita Thapa',
+        votedFor: { president: null, vicePresident: null, generalCandidates: [] }
+      }
     ];
 
     for (const student of students) {

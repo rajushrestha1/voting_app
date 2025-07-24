@@ -1,26 +1,39 @@
-// AddCandidateForm.jsx
 import React, { useState } from 'react';
 
 const AddCandidateForm = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
     party: '',
-    position: 'President'
+    position: 'President',
+    image: null, // Add image to state
   });
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, files } = e.target;
+    if (name === 'image') {
+      setFormData({ ...formData, image: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
-  };
+
+    // Use FormData for image and text fields
+  const data = new FormData();
+data.append('name', formData.name);
+data.append('party', formData.party);
+data.append('position', formData.position);
+data.append('image', formData.image); // ← correct
+
+onSubmit(data); // ← parent sends this via axios/fetch with content-type multipart/form-data
+  }
 
   return (
     <div className="mb-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
       <h3 className="text-lg font-medium mb-4">Add New Candidate</h3>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} encType="multipart/form-data">
         <div className="grid grid-cols-1 gap-4 mb-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -36,6 +49,7 @@ const AddCandidateForm = ({ onSubmit, onCancel }) => {
               required
             />
           </div>
+
           <div>
             <label htmlFor="party" className="block text-sm font-medium text-gray-700 mb-1">
               Party
@@ -50,6 +64,7 @@ const AddCandidateForm = ({ onSubmit, onCancel }) => {
               required
             />
           </div>
+
           <div>
             <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-1">
               Position
@@ -66,6 +81,21 @@ const AddCandidateForm = ({ onSubmit, onCancel }) => {
               <option value="Vice President">Vice President</option>
               <option value="Candidate">Candidate</option>
             </select>
+          </div>
+
+          <div>
+            <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">
+              Candidate Image
+            </label>
+            <input
+              type="file"
+              id="image"
+              name="image"
+              accept="image/*"
+              onChange={handleChange}
+              className="input-field"
+              required
+            />
           </div>
         </div>
 
